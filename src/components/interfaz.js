@@ -1,96 +1,95 @@
+// src/components/interfaz.js
 import React from 'react';
 import { StyleSheet, Text, View, TouchableOpacity } from 'react-native';
 
-// ─── Paleta: navy profundo + teal cálido + blancos limpios ───────────────────
+// ─── Paleta ──────────────────────────────────────────────────────────────────
 export const C = {
-    navy:       '#0F2D4A',   // fondo header / tabs
-    navyMid:    '#1A4A6E',   // botón calcular
-    teal:       '#1B7A8C',   // acento principal
-    tealLight:  '#2AA8BE',   // bordes activos
-    tealPale:   '#D6F0F5',   // fondos de chip / badges
-    sky:        '#E8F6FA',   // fondo de tarjetas métricas
-    bg:         '#F4F9FB',   // fondo general de la app
-    white:      '#FFFFFF',
-    textDark:   '#0D1F2D',   // texto principal
-    textMid:    '#2C5F7A',   // labels, subtítulos
-    textSoft:   '#6B8FA3',   // fórmulas, notas
-    green:      '#1E8C5A',   // P0 y valores buenos
-    greenPale:  '#D4F0E4',
-    amber:      '#B86A00',   // advertencia moderada
-    amberPale:  '#FFF0D6',
-    red:        '#C0392B',   // saturación
-    redPale:    '#FDECEA',
-    border:     '#C5DDE8',
-    divider:    '#E2EFF4',
+    navy:        '#a9d6e5',   // header / fondo oscuro
+    primary:     '#33658A',   // azul principal
+    accent:      '#03045e',   // azul claro de contraste
+    accentMid:   '#235468',   // azul claro medio (bordes activos, interp)
+    bg:          '#a9d6e524',   // fondo general
+    surface:     '#FFFFFF',   // tarjetas
+    surfaceSoft: '#a9d6e524',   // inputs, fondos internos
+    textDark:    '#1a1a2e',   // texto principal
+    textMid:     '#03045e',   // subtítulos / labels
+    textSoft:    '#9B9790',   // hints, fórmulas
+    border:      '#E8E5DF',   // bordes de tarjeta
+    divider:     '#F0EDE8',   // separadores internos
+    green:       '#2D7A4F',
+    greenPale:   '#E6F3EC',
+    amber:       '#C47F1A',
+    amberPale:   '#FDF3E3',
+    red:         '#A32D2D',
+    redPale:     '#FCEBEB',
 };
 
-// ─── Selector de modelo ──────────────────────────────────────────────────────
 export const SelectorModelo = ({ modelo, setModelo, alCambiar }) => (
-    <View style={s.selectorWrap}>
+    <View style={s.selRow}>
         {[
-            { id: 'MM1', emoji: '🏪', label: 'M/M/1', sub: 'Una caja' },
-            { id: 'MMS', emoji: '🏬', label: 'M/M/S', sub: 'Varias cajas' },
+            { id: 'MM1', label: 'M/M/1', sub: 'Una caja' },
+            { id: 'MMS', label: 'M/M/S', sub: 'Varias cajas' },
         ].map(t => {
             const activo = modelo === t.id;
             return (
                 <TouchableOpacity
                     key={t.id}
                     activeOpacity={0.8}
-                    style={[s.selectorBtn, activo && s.selectorBtnActivo]}
+                    style={[s.selBtn, activo && s.selBtnActivo]}
                     onPress={() => { setModelo(t.id); alCambiar(); }}
                 >
-                    <Text style={s.selectorEmoji}>{t.emoji}</Text>
-                    <Text style={[s.selectorLabel, activo && s.selectorLabelActivo]}>{t.label}</Text>
-                    <Text style={[s.selectorSub, activo && s.selectorSubActivo]}>{t.sub}</Text>
+                    <Text style={[s.selLabel, activo && s.selLabelActivo]}>{t.label}</Text>
+                    <Text style={[s.selSub, activo && s.selSubActivo]}>{t.sub}</Text>
                 </TouchableOpacity>
             );
         })}
     </View>
 );
 
-// ─── Tarjeta de métrica con interpretación ───────────────────────────────────
-export const MetricaCard = ({ emoji, titulo, valor, formula, interpretacion, estadoBg, estadoColor }) => (
-    <View style={[s.metricCard, estadoBg ? { borderLeftColor: estadoColor || C.teal } : {}]}>
+export const MetricaCard = ({ emoji, titulo, formula, valor, interpretacion, valorColor }) => (
+    <View style={s.metricCard}>
         <View style={s.metricTop}>
-            <Text style={s.metricEmoji}>{emoji}</Text>
+            <View style={s.metricIconBox}>
+                <Text style={s.metricEmoji}>{emoji}</Text>
+            </View>
             <View style={{ flex: 1 }}>
                 <Text style={s.metricTitulo}>{titulo}</Text>
                 <Text style={s.metricFormula}>{formula}</Text>
             </View>
-            <Text style={[s.metricValor, { color: estadoColor || C.navyMid }]}>{valor}</Text>
+            <Text style={[s.metricValor, valorColor ? { color: valorColor } : {}]}>{valor}</Text>
         </View>
-        <View style={[s.metricInterpBox, estadoBg ? { backgroundColor: estadoBg } : {}]}>
-            <Text style={s.metricInterpText}>{interpretacion}</Text>
+        <View style={s.interpBox}>
+            <Text style={s.interpTxt}>{interpretacion}</Text>
         </View>
     </View>
 );
 
-// ─── Tarjeta especial P0 ─────────────────────────────────────────────────────
 export const P0Card = ({ valor, formula }) => {
     const pct = parseFloat(valor);
-    const nivel = pct > 25
+    const interp = pct > 25
         ? `Hay un ${valor}% de probabilidad de encontrar la cafetería vacía. El sistema tiene buena holgura.`
         : pct > 10
         ? `Solo ${valor}% de probabilidad de sistema vacío. La cafetería está casi siempre ocupada.`
-        : `Apenas ${valor}% de probabilidad de sistema vacío. El sistema está casi siempre lleno.`;
+        : `Apenas ${valor}%. El sistema está prácticamente lleno todo el tiempo.`;
     return (
         <View style={[s.metricCard, { borderLeftColor: C.green }]}>
             <View style={s.metricTop}>
-                <Text style={s.metricEmoji}>🟢</Text>
+                <View style={[s.metricIconBox, { backgroundColor: C.greenPale }]}>
+                    <Text style={s.metricEmoji}>🟢</Text>
+                </View>
                 <View style={{ flex: 1 }}>
                     <Text style={s.metricTitulo}>Prob. sistema vacío (P₀)</Text>
                     <Text style={s.metricFormula}>{formula}</Text>
                 </View>
                 <Text style={[s.metricValor, { color: C.green }]}>{valor}%</Text>
             </View>
-            <View style={[s.metricInterpBox, { backgroundColor: C.greenPale }]}>
-                <Text style={s.metricInterpText}>{nivel}</Text>
+            <View style={[s.interpBox, { backgroundColor: C.greenPale }]}>
+                <Text style={s.interpTxt}>{interp}</Text>
             </View>
         </View>
     );
 };
 
-// ─── Divisor de sección ──────────────────────────────────────────────────────
 export const Divisor = ({ label }) => (
     <View style={s.divWrap}>
         <View style={s.divLine} />
@@ -99,7 +98,7 @@ export const Divisor = ({ label }) => (
     </View>
 );
 
-// ─── Chip informativo ────────────────────────────────────────────────────────
+
 export const InfoChip = ({ etiqueta, valor }) => (
     <View style={s.chip}>
         <Text style={s.chipLabel}>{etiqueta}</Text>
@@ -107,7 +106,7 @@ export const InfoChip = ({ etiqueta, valor }) => (
     </View>
 );
 
-// ─── Fila de metodología ─────────────────────────────────────────────────────
+
 export const MetodRow = ({ emoji, titulo, texto }) => (
     <View style={s.metodRow}>
         <Text style={s.metodEmoji}>{emoji}</Text>
@@ -118,45 +117,48 @@ export const MetodRow = ({ emoji, titulo, texto }) => (
     </View>
 );
 
-// ─── Estilos ─────────────────────────────────────────────────────────────────
+
 const s = StyleSheet.create({
     // Selector
-    selectorWrap:      { flexDirection:'row', gap:10, marginBottom:20 },
-    selectorBtn:       { flex:1, alignItems:'center', paddingVertical:14, borderRadius:14,
-                         backgroundColor:C.sky, borderWidth:2, borderColor:C.border },
-    selectorBtnActivo: { backgroundColor:C.navy, borderColor:C.tealLight },
-    selectorEmoji:     { fontSize:22, marginBottom:4 },
-    selectorLabel:     { fontSize:15, fontWeight:'700', color:C.textMid },
-    selectorLabelActivo:{ color:'#fff' },
-    selectorSub:       { fontSize:11, color:C.textSoft, marginTop:2 },
-    selectorSubActivo: { color:'#8EC8D8' },
+    selRow:        { flexDirection: 'row', gap: 10, marginBottom: 18 },
+    selBtn:        { flex: 1, alignItems: 'center', paddingVertical: 12,
+                     borderRadius: 12, backgroundColor: C.surfaceSoft,
+                     borderWidth: 1.5, borderColor: C.border },
+    selBtnActivo:  { backgroundColor: C.navy, borderColor: C.navy },
+    selLabel:      { fontSize: 14, fontWeight: '600', color: C.textMid },
+    selLabelActivo:{ color: '#fff' },
+    selSub:        { fontSize: 10, color: C.textSoft, marginTop: 2 },
+    selSubActivo:  { color: C.accent },
 
     // Metric card
-    metricCard:     { backgroundColor:C.white, borderRadius:14, padding:14, marginBottom:10,
-                      borderLeftWidth:4, borderLeftColor:C.teal,
-                      shadowColor:'#000', shadowOpacity:0.05, shadowRadius:6, elevation:2 },
-    metricTop:      { flexDirection:'row', alignItems:'flex-start', marginBottom:10 },
-    metricEmoji:    { fontSize:22, marginRight:10, marginTop:2 },
-    metricTitulo:   { fontSize:13, fontWeight:'700', color:C.textDark, marginBottom:3 },
-    metricFormula:  { fontSize:11, color:C.textSoft, fontStyle:'italic' },
-    metricValor:    { fontSize:22, fontWeight:'800', color:C.navyMid, textAlign:'right', minWidth:70 },
-    metricInterpBox:{ backgroundColor:C.sky, borderRadius:8, padding:10 },
-    metricInterpText:{ fontSize:12, color:C.textMid, lineHeight:18 },
+    metricCard:    { backgroundColor: C.surface, borderRadius: 14, padding: 14,
+                     marginBottom: 10, borderLeftWidth: 3, borderLeftColor: C.primary,
+                     borderWidth: 0.5, borderColor: C.border },
+    metricTop:     { flexDirection: 'row', alignItems: 'flex-start', marginBottom: 10 },
+    metricIconBox: { width: 34, height: 34, borderRadius: 8, backgroundColor: '#EAF2F8',
+                     alignItems: 'center', justifyContent: 'center', marginRight: 10 },
+    metricEmoji:   { fontSize: 16 },
+    metricTitulo:  { fontSize: 12, fontWeight: '700', color: C.textDark, marginBottom: 2 },
+    metricFormula: { fontSize: 10, color: C.textSoft, fontStyle: 'italic' },
+    metricValor:   { fontSize: 20, fontWeight: '700', color: C.primary, minWidth: 72, textAlign: 'right' },
+    interpBox:     { backgroundColor: C.surfaceSoft, borderRadius: 8, padding: 8 },
+    interpTxt:     { fontSize: 11, color: C.textMid, lineHeight: 17 },
 
     // Divisor
-    divWrap:  { flexDirection:'row', alignItems:'center', marginVertical:14 },
-    divLine:  { flex:1, height:1, backgroundColor:C.divider },
-    divLabel: { marginHorizontal:10, fontSize:12, fontWeight:'700', color:C.textSoft,
-                textTransform:'uppercase', letterSpacing:0.8 },
+    divWrap:   { flexDirection: 'row', alignItems: 'center', marginVertical: 12 },
+    divLine:   { flex: 1, height: 0.5, backgroundColor: C.border },
+    divLabel:  { marginHorizontal: 10, fontSize: 11, fontWeight: '700', color: C.textSoft,
+                 textTransform: 'uppercase', letterSpacing: 0.8 },
 
     // Chip
-    chip:      { backgroundColor:C.tealPale, borderRadius:10, padding:12, marginBottom:8 },
-    chipLabel: { fontSize:11, color:C.textSoft, marginBottom:3, fontWeight:'600' },
-    chipValor: { fontSize:15, color:C.navy, fontWeight:'700' },
+    chip:      { backgroundColor: '#EAF2F8', borderRadius: 10, padding: 12, marginBottom: 8,
+                 borderLeftWidth: 3, borderLeftColor: C.accent },
+    chipLabel: { fontSize: 10, color: C.textSoft, fontWeight: '600', marginBottom: 3 },
+    chipValor: { fontSize: 14, color: C.navy, fontWeight: '700' },
 
-    // Metod row
-    metodRow:   { flexDirection:'row', marginBottom:14, alignItems:'flex-start' },
-    metodEmoji: { fontSize:20, marginRight:12, marginTop:2 },
-    metodTitulo:{ fontSize:13, fontWeight:'700', color:C.textDark, marginBottom:2 },
-    metodTexto: { fontSize:12, color:C.textMid, lineHeight:18 },
+    // Metod
+    metodRow:   { flexDirection: 'row', marginBottom: 12, alignItems: 'flex-start' },
+    metodEmoji: { fontSize: 18, marginRight: 10, marginTop: 1 },
+    metodTitulo:{ fontSize: 12, fontWeight: '700', color: C.textDark, marginBottom: 2 },
+    metodTexto: { fontSize: 12, color: C.textMid, lineHeight: 17 },
 });

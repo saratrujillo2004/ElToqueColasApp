@@ -7,73 +7,67 @@ const factorial = (n) => {
     return r;
 };
 
-const interpretarRho = (rho) => {
-    if (rho >= 95) return 'Sistema al límite del colapso. Las colas crecen sin control.';
-    if (rho >= 80) return `Utilización muy alta (${rho}%). Se generan esperas largas; se recomienda otro servidor.`;
-    if (rho >= 60) return `Carga moderada-alta (${rho}%). El sistema funciona con esperas notables en hora pico.`;
-    return `Carga saludable (${rho}%). El sistema atiende bien la demanda actual.`;
+const interpretarRho = (rhoStr) => {
+    const v = parseFloat(rhoStr);
+    if (v >= 95) return 'Sistema al límite del colapso. Las colas crecen sin control.';
+    if (v >= 80) return `Utilización muy alta (${rhoStr}%). Se generan esperas largas; se recomienda abrir otro servidor.`;
+    if (v >= 60) return `Carga moderada-alta (${rhoStr}%). El sistema funciona pero con esperas notables en hora pico.`;
+    return `Carga saludable (${rhoStr}%). El sistema atiende bien la demanda actual.`;
 };
 
-const interpretarL = (L) => {
-    const v = parseFloat(L);
-    if (v > 15) return `Promedio de ${L} personas simultáneas en la cafetería. Ambiente muy concurrido.`;
-    if (v > 5) return `Hay ${L} personas en la cafetería en promedio. Se percibe ocupada.`;
-    return `Solo ${L} personas en promedio. Ambiente tranquilo y fluido.`;
+const interpretarL = (LStr) => {
+    const v = parseFloat(LStr);
+    if (v > 15) return `Promedio de ${LStr} personas simultáneas en la cafetería. Ambiente muy concurrido.`;
+    if (v > 5)  return `Hay ${LStr} personas en la cafetería en promedio. Se percibe bastante ocupada.`;
+    return `Solo ${LStr} personas en el sistema en promedio. Ambiente tranquilo y fluido.`;
 };
 
-const interpretarLq = (Lq) => {
-    const v = parseFloat(Lq);
-    if (v > 8) return `Cola de ${Lq} personas en promedio. La fila es larga y muy visible.`;
-    if (v > 3) return `Cola de ${Lq} personas en promedio. Espera perceptible pero manejable.`;
-    if (v > 1) return `${Lq} personas esperando en promedio. Fila corta y tolerable.`;
-    return `Menos de 1 persona en fila (${Lq}). Prácticamente sin espera.`;
+const interpretarLq = (LqStr) => {
+    const v = parseFloat(LqStr);
+    if (v > 8) return `Cola de ${LqStr} personas en promedio. La fila es larga y muy visible.`;
+    if (v > 3) return `Cola de ${LqStr} personas en promedio. Espera perceptible pero manejable.`;
+    if (v > 1) return `${LqStr} personas esperando en promedio. Fila corta y tolerable.`;
+    return `Menos de 1 persona en fila (${LqStr}). Prácticamente sin espera.`;
 };
 
-const interpretarW = (W) => {
-    const v = parseFloat(W);
-    if (v > 15) return `${W} min totales en la cafetería. Tiempo alto; puede frustrar a los estudiantes.`;
-    if (v > 7) return `${W} min de experiencia total. Aceptable para hora pico.`;
-    return `Solo ${W} min en total. Experiencia rápida y cómoda.`;
+const interpretarW = (WStr) => {
+    const v = parseFloat(WStr);
+    if (v > 15) return `${WStr} min totales en la cafetería. Tiempo muy alto; puede frustrar a los estudiantes.`;
+    if (v > 7)  return `${WStr} min de experiencia total. Aceptable para hora pico.`;
+    return `Solo ${WStr} min en total. Experiencia rápida y cómoda.`;
 };
 
-const interpretarWq = (Wq) => {
-    const v = parseFloat(Wq);
-    if (v > 10) return `${Wq} min solo esperando en fila. Muy alto; muchos estudiantes abandonarán la cola.`;
-    if (v > 4) return `${Wq} min de espera en cola. Moderado; abrir otro servidor mejoraría la experiencia.`;
-    if (v > 1) return `${Wq} min de espera. Tolerable en hora pico.`;
-    return `Menos de 1 min esperando (${Wq} min). Atención casi inmediata.`;
+const interpretarWq = (WqStr) => {
+    const v = parseFloat(WqStr);
+    if (v > 10) return `${WqStr} min solo esperando en fila. Muy alto; muchos estudiantes abandonarán la cola.`;
+    if (v > 4)  return `${WqStr} min de espera en cola. Moderado; un servidor adicional mejoraría la experiencia.`;
+    if (v > 1)  return `${WqStr} min de espera. Tolerable en hora pico.`;
+    return `Menos de 1 min esperando (${WqStr} min). Atención prácticamente inmediata.`;
 };
 
-// ─── M/M/1 ───────────────────────────────────────────────────────────────────
+
 export const calcularModeloMM1 = (l, m) => {
+    
     const rho = l / m;
-    const P0 = 1 - rho;
-    const L = l / (m - l);
-    const Lq = (l * l) / (m * (m - l));
-    const W = (1 / (m - l)) * 60;
-    const Wq = (l / (m * (m - l))) * 60;
+    const P0  = 1 - rho;
+    const L   = l / (m - l);
+    const Lq  = (l * l) / (m * (m - l));
+    const W   = (1 / (m - l)) * 60;
+    const Wq  = (l / (m * (m - l))) * 60;
 
-    const rhoStr  = (rho * 100).toFixed(2);
-    const P0Str   = (P0 * 100).toFixed(2);
-    const LStr    = L.toFixed(2);
-    const LqStr   = Lq.toFixed(2);
-    const WStr    = W.toFixed(2);
-    const WqStr   = Wq.toFixed(2);
+    const rhoStr = (rho * 100).toFixed(2);
+    const P0Str  = (P0  * 100).toFixed(2);
+    const LStr   = L.toFixed(2);
+    const LqStr  = Lq.toFixed(2);
+    const WStr   = W.toFixed(2);
+    const WqStr  = Wq.toFixed(2);
 
     return {
-        tipo: 'M/M/1',
-        servidores: 1,
-        rho:  rhoStr,
-        P0:   P0Str,
-        L:    LStr,
-        Lq:   LqStr,
-        W:    WStr,
-        Wq:   WqStr,
+        tipo: 'M/M/1', servidores: 1,
+        rho: rhoStr, P0: P0Str, L: LStr, Lq: LqStr, W: WStr, Wq: WqStr,
         interpretaciones: {
-            rho: interpretarRho(rhoStr),
-            L:   interpretarL(LStr),
-            Lq:  interpretarLq(LqStr),
-            W:   interpretarW(WStr),
+            rho: interpretarRho(rhoStr), L: interpretarL(LStr),
+            Lq:  interpretarLq(LqStr),  W: interpretarW(WStr),
             Wq:  interpretarWq(WqStr),
         },
         ecuaciones: {
@@ -87,41 +81,34 @@ export const calcularModeloMM1 = (l, m) => {
     };
 };
 
-// ─── M/M/S ───────────────────────────────────────────────────────────────────
+
 export const calcularModeloMMS = (l, m, s) => {
+    
     const rho = l / (s * m);
     let suma = 0;
     for (let n = 0; n < s; n++) {
         suma += Math.pow(l / m, n) / factorial(n);
     }
     const termS = Math.pow(l / m, s) / (factorial(s) * (1 - rho));
-    const P0 = 1 / (suma + termS);
-    const Lq = (P0 * Math.pow(l / m, s) * rho) / (factorial(s) * Math.pow(1 - rho, 2));
-    const L  = Lq + (l / m);
-    const W  = (L / l) * 60;
-    const Wq = (Lq / l) * 60;
+    const P0    = 1 / (suma + termS);
+    const Lq    = (P0 * Math.pow(l / m, s) * rho) / (factorial(s) * Math.pow(1 - rho, 2));
+    const L     = Lq + (l / m);
+    const W     = (L / l) * 60;
+    const Wq    = (Lq / l) * 60;
 
-    const rhoStr  = (rho * 100).toFixed(2);
-    const P0Str   = (P0 * 100).toFixed(2);
-    const LStr    = L.toFixed(2);
-    const LqStr   = Lq.toFixed(2);
-    const WStr    = W.toFixed(2);
-    const WqStr   = Wq.toFixed(2);
+    const rhoStr = (rho * 100).toFixed(2);
+    const P0Str  = (P0  * 100).toFixed(2);
+    const LStr   = L.toFixed(2);
+    const LqStr  = Lq.toFixed(2);
+    const WStr   = W.toFixed(2);
+    const WqStr  = Wq.toFixed(2);
 
     return {
-        tipo: `M/M/${s}`,
-        servidores: s,
-        rho:  rhoStr,
-        P0:   P0Str,
-        L:    LStr,
-        Lq:   LqStr,
-        W:    WStr,
-        Wq:   WqStr,
+        tipo: `M/M/${s}`, servidores: s,
+        rho: rhoStr, P0: P0Str, L: LStr, Lq: LqStr, W: WStr, Wq: WqStr,
         interpretaciones: {
-            rho: interpretarRho(rhoStr),
-            L:   interpretarL(LStr),
-            Lq:  interpretarLq(LqStr),
-            W:   interpretarW(WStr),
+            rho: interpretarRho(rhoStr), L: interpretarL(LStr),
+            Lq:  interpretarLq(LqStr),  W: interpretarW(WStr),
             Wq:  interpretarWq(WqStr),
         },
         ecuaciones: {
@@ -135,13 +122,13 @@ export const calcularModeloMMS = (l, m, s) => {
     };
 };
 
-// ─── Dataset de campo (46 observaciones reales) ───────────────────────────────
+
 export const DATOS_CAMPO = {
     n: 46,
-    mediaEsperaMin: 2.16,
+    mediaEsperaMin:   2.16,
     mediaAtencionMin: 1.36,
-    stdEspera: 146.84,
-    stdAtencion: 84.40,
+    stdEspera:        146.84,
+    stdAtencion:      84.40,
     observaciones: [
         { fila:1,  espera:120.00, atencion:28.00  },
         { fila:2,  espera:6.00,   atencion:36.00  },

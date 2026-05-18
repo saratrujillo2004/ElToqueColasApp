@@ -1,229 +1,205 @@
 // src/reports/plantillapdf.js
 
-const fecha = () => new Date().toLocaleDateString('es-CO', {
+const fechaHoy = () => new Date().toLocaleDateString('es-CO', {
     year: 'numeric', month: 'long', day: 'numeric',
 });
 
-// ─── PDF de resultados de la calculadora ─────────────────────────────────────
+const COLOR = {
+    navy:    '#1a1a2e',
+    primary: '#33658A',
+    accent:  '#A8D4E6',
+    bg:      '#F5F3EF',
+    surface: '#FFFFFF',
+    soft:    '#EAF2F8',
+    green:   '#2D7A4F',
+    greenBg: '#E6F3EC',
+    amber:   '#C47F1A',
+    red:     '#A32D2D',
+    text:    '#1a1a2e',
+    textMid: '#33658A',
+    textSoft:'#9B9790',
+    border:  '#E8E5DF',
+};
+
 export const obtenerPlantillaHTML = (lambda, mu, servidores, modelo, res) => {
     const rhoNum = parseFloat(res.rho);
-    const rhoColor = rhoNum >= 85 ? '#C0392B' : rhoNum >= 60 ? '#B86A00' : '#1E8C5A';
+    const rhoColor = rhoNum >= 85 ? COLOR.red : rhoNum >= 60 ? COLOR.amber : COLOR.green;
 
     const fila = (nombre, ecuacion, valor, colorVal, interp) => `
       <tr>
-        <td style="font-weight:600;color:#0D1F2D;padding:12px 14px;border-bottom:1px solid #E2EFF4;">${nombre}</td>
-        <td style="font-style:italic;color:#6B8FA3;font-size:12px;padding:12px 14px;border-bottom:1px solid #E2EFF4;">${ecuacion}</td>
-        <td style="font-weight:800;font-size:16px;color:${colorVal};padding:12px 14px;border-bottom:1px solid #E2EFF4;white-space:nowrap;">${valor}</td>
-        <td style="font-size:12px;color:#2C5F7A;line-height:1.6;padding:12px 14px;border-bottom:1px solid #E2EFF4;">${interp}</td>
+        <td style="padding:12px 14px;border-bottom:1px solid ${COLOR.border};font-weight:600;color:${COLOR.text};font-size:13px;">${nombre}</td>
+        <td style="padding:12px 14px;border-bottom:1px solid ${COLOR.border};font-style:italic;color:${COLOR.textSoft};font-size:11px;">${ecuacion}</td>
+        <td style="padding:12px 14px;border-bottom:1px solid ${COLOR.border};font-weight:700;font-size:16px;color:${colorVal};white-space:nowrap;">${valor}</td>
+        <td style="padding:12px 14px;border-bottom:1px solid ${COLOR.border};font-size:12px;color:${COLOR.textMid};line-height:1.6;">${interp}</td>
       </tr>`;
 
     return `<!DOCTYPE html>
 <html lang="es">
-<head>
-  <meta charset="UTF-8">
-  <style>
-    body { margin:0; padding:0; font-family: Arial, Helvetica, sans-serif; background:#F4F9FB; color:#0D1F2D; }
-    .wrap { max-width:820px; margin:0 auto; padding:32px 28px; background:#fff; }
-    .header { background: #0F2D4A; border-radius:16px; padding:28px 26px; color:#fff; margin-bottom:26px; }
-    .header h1 { margin:0 0 6px; font-size:20px; font-weight:800; }
-    .header p  { margin:0; font-size:13px; opacity:.75; }
-    .badge { display:inline-block; margin-top:12px; background:rgba(255,255,255,.15);
-             border:1px solid rgba(255,255,255,.25); border-radius:20px;
-             padding:4px 14px; font-size:12px; font-weight:600; margin-right:8px; }
-    .seccion { font-size:12px; font-weight:700; color:#1B7A8C; text-transform:uppercase;
-               letter-spacing:1px; border-bottom:2px solid #D6F0F5; padding-bottom:6px; margin:22px 0 14px; }
-    .vars { display:flex; flex-wrap:wrap; gap:12px; margin-bottom:22px; }
-    .var-card { flex:1; min-width:160px; background:#E8F6FA; border-left:4px solid #1B7A8C;
-                border-radius:10px; padding:12px 14px; }
-    .var-label { font-size:10px; color:#6B8FA3; font-weight:600; text-transform:uppercase;
-                 letter-spacing:.5px; margin-bottom:4px; }
-    .var-val   { font-size:20px; font-weight:800; color:#0F2D4A; }
-    .var-unit  { font-size:10px; color:#2C5F7A; margin-top:2px; }
-    table { width:100%; border-collapse:collapse; font-size:13px; }
-    thead th { background:#0F2D4A; color:#fff; padding:12px 14px; font-size:11px;
-               font-weight:700; text-transform:uppercase; letter-spacing:.5px; text-align:left; }
-    .p0row td { background:#D4F0E4; }
-    .footer { margin-top:30px; text-align:center; font-size:11px; color:#6B8FA3;
-              border-top:1px solid #E2EFF4; padding-top:14px; }
-  </style>
+<head><meta charset="UTF-8">
+<style>
+  body { margin:0; padding:0; font-family:Arial,Helvetica,sans-serif; background:${COLOR.bg}; color:${COLOR.text}; }
+  .wrap { max-width:820px; margin:0 auto; padding:32px 28px; background:${COLOR.surface}; }
+  .header { background:${COLOR.navy}; border-radius:14px; padding:26px; color:#fff; margin-bottom:26px; }
+  .header h1 { margin:0 0 6px; font-size:19px; }
+  .header p  { margin:0; font-size:12px; opacity:.7; }
+  .badge { display:inline-block; margin-top:12px; margin-right:8px;
+           background:rgba(168,212,230,0.2); border:1px solid rgba(168,212,230,0.35);
+           border-radius:20px; padding:4px 14px; font-size:11px; }
+  .sec { font-size:11px; font-weight:700; color:${COLOR.primary}; text-transform:uppercase;
+         letter-spacing:1px; border-bottom:2px solid ${COLOR.accent}; padding-bottom:5px; margin:20px 0 14px; }
+  .vars { width:100%; border-collapse:collapse; margin-bottom:22px; }
+  .var-cell { width:25%; padding:0 8px 0 0; vertical-align:top; }
+  .var-card { background:${COLOR.soft}; border-left:4px solid ${COLOR.primary};
+              border-radius:10px; padding:12px 14px; }
+  .var-label { font-size:10px; color:${COLOR.textSoft}; font-weight:600;
+               text-transform:uppercase; letter-spacing:.4px; margin-bottom:4px; }
+  .var-val   { font-size:20px; font-weight:700; color:${COLOR.navy}; }
+  .var-unit  { font-size:10px; color:${COLOR.textMid}; margin-top:2px; }
+  table.res  { width:100%; border-collapse:collapse; font-size:13px; }
+  table.res thead th { background:${COLOR.navy}; color:#fff; padding:11px 14px;
+                       font-size:10px; font-weight:700; text-transform:uppercase;
+                       letter-spacing:.5px; text-align:left; }
+  .p0bg td  { background:${COLOR.greenBg}; }
+  .footer { margin-top:28px; text-align:center; font-size:10px; color:${COLOR.textSoft};
+            border-top:1px solid ${COLOR.border}; padding-top:12px; }
+</style>
 </head>
 <body>
 <div class="wrap">
   <div class="header">
-    <h1>☕ Informe de Colas — Cafetería "El Toque"</h1>
-    <p>Investigación Operativa · Modelamiento matemático del flujo en hora pico</p>
+    <h1> Informe de colas | Cafetería El Toque</h1>
+    <p>Modelamiento matemático del flujo de atención en hora pico</p>
     <span class="badge">Modelo ${res.tipo}</span>
-    <span class="badge">${fecha()}</span>
+    <span class="badge">${fechaHoy()}</span>
   </div>
 
-  <div class="seccion">Variables del sistema</div>
-  <div class="vars">
-    <div class="var-card">
-      <div class="var-label">Tasa de Llegada (λ)</div>
+  <div class="sec">Variables del sistema</div>
+  <table class="vars"><tr>
+    <td class="var-cell"><div class="var-card">
+      <div class="var-label">Tasa de llegada (λ)</div>
       <div class="var-val">${lambda}</div>
       <div class="var-unit">clientes / hora</div>
-    </div>
-    <div class="var-card">
-      <div class="var-label">Tasa de Servicio (μ)</div>
+    </div></td>
+    <td class="var-cell"><div class="var-card">
+      <div class="var-label">Tasa de servicio (μ)</div>
       <div class="var-val">${mu}</div>
       <div class="var-unit">clientes / hora · caja</div>
-    </div>
+    </div></td>
     ${modelo === 'MMS' ? `
-    <div class="var-card">
+    <td class="var-cell"><div class="var-card">
       <div class="var-label">Servidores (S)</div>
       <div class="var-val">${servidores}</div>
       <div class="var-unit">cajas abiertas</div>
-    </div>
-    <div class="var-card">
+    </div></td>
+    <td class="var-cell"><div class="var-card">
       <div class="var-label">Capacidad total</div>
       <div class="var-val">${(parseInt(servidores) * parseFloat(mu)).toFixed(0)}</div>
       <div class="var-unit">clientes / hora (S×μ)</div>
-    </div>` : ''}
-  </div>
+    </div></td>` : '<td class="var-cell"></td><td class="var-cell"></td>'}
+  </tr></table>
 
-  <div class="seccion">Resultados del modelo</div>
-  <table>
-    <thead>
-      <tr>
-        <th>Parámetro</th>
-        <th>Ecuación</th>
-        <th>Valor</th>
-        <th>Interpretación</th>
-      </tr>
-    </thead>
+  <div class="sec">Resultados del modelo</div>
+  <table class="res">
+    <thead><tr>
+      <th>Parámetro</th><th>Ecuación</th><th>Valor</th><th>Interpretación</th>
+    </tr></thead>
     <tbody>
-      ${fila('Utilización del sistema (ρ)',   res.ecuaciones.rho, res.rho + '%',       rhoColor,   res.interpretaciones.rho)}
-      <tr class="p0row">
-        <td style="font-weight:600;color:#0D1F2D;padding:12px 14px;border-bottom:1px solid #E2EFF4;">Prob. sistema vacío (P₀)</td>
-        <td style="font-style:italic;color:#6B8FA3;font-size:12px;padding:12px 14px;border-bottom:1px solid #E2EFF4;">${res.ecuaciones.P0}</td>
-        <td style="font-weight:800;font-size:16px;color:#1E8C5A;padding:12px 14px;border-bottom:1px solid #E2EFF4;">${res.P0}%</td>
-        <td style="font-size:12px;color:#2C5F7A;line-height:1.6;padding:12px 14px;border-bottom:1px solid #E2EFF4;">Probabilidad de no encontrar a nadie en la cafetería al llegar.</td>
+      ${fila('Utilización del sistema (ρ)',   res.ecuaciones.rho, res.rho + '%',      rhoColor,      res.interpretaciones.rho)}
+      <tr class="p0bg">
+        <td style="padding:12px 14px;border-bottom:1px solid ${COLOR.border};font-weight:600;font-size:13px;">Prob. sistema vacío (P₀)</td>
+        <td style="padding:12px 14px;border-bottom:1px solid ${COLOR.border};font-style:italic;color:${COLOR.textSoft};font-size:11px;">${res.ecuaciones.P0}</td>
+        <td style="padding:12px 14px;border-bottom:1px solid ${COLOR.border};font-weight:700;font-size:16px;color:${COLOR.green};">${res.P0}%</td>
+        <td style="padding:12px 14px;border-bottom:1px solid ${COLOR.border};font-size:12px;color:${COLOR.textMid};line-height:1.6;">Probabilidad de no encontrar a nadie en la cafetería al llegar.</td>
       </tr>
-      ${fila('Clientes en el sistema (L)',    res.ecuaciones.L,   res.L + ' pers.',    '#1A4A6E',  res.interpretaciones.L)}
-      ${fila('Clientes en la fila (Lq)',      res.ecuaciones.Lq,  res.Lq + ' pers.',   '#1A4A6E',  res.interpretaciones.Lq)}
-      ${fila('Tiempo total en cafetería (W)', res.ecuaciones.W,   res.W + ' min',      '#0F2D4A',  res.interpretaciones.W)}
-      ${fila('Tiempo de espera en fila (Wq)', res.ecuaciones.Wq,  res.Wq + ' min',     '#0F2D4A',  res.interpretaciones.Wq)}
+      ${fila('Clientes en el sistema (L)',    res.ecuaciones.L,   res.L + ' pers.',   COLOR.primary, res.interpretaciones.L)}
+      ${fila('Clientes en la fila (Lq)',      res.ecuaciones.Lq,  res.Lq + ' pers.',  COLOR.primary, res.interpretaciones.Lq)}
+      ${fila('Tiempo total en cafetería (W)', res.ecuaciones.W,   res.W + ' min',     COLOR.navy,    res.interpretaciones.W)}
+      ${fila('Tiempo de espera en fila (Wq)', res.ecuaciones.Wq,  res.Wq + ' min',    COLOR.navy,    res.interpretaciones.Wq)}
     </tbody>
   </table>
 
-  <div class="footer">
-    El Toque Simulación · Investigación Operativa · App React Native · ${fecha()}
-  </div>
+  <div class="footer">El Toque Simulación · Investigación Operativa · ${fechaHoy()}</div>
 </div>
-</body>
-</html>`;
+</body></html>`;
 };
 
-// ─── PDF del experimento de campo ─────────────────────────────────────────────
+
 export const obtenerPlantillaExperimentoHTML = (datos) => {
+    const muEst = (60 / datos.mediaAtencionMin).toFixed(1);
+
     const filas = datos.observaciones.map((o, i) => `
-      <tr style="background:${i % 2 === 0 ? '#F4F9FB' : '#fff'};">
-        <td style="padding:7px 12px;text-align:center;font-weight:600;color:#1B7A8C;border-bottom:1px solid #E2EFF4;">${o.fila}</td>
-        <td style="padding:7px 12px;text-align:center;border-bottom:1px solid #E2EFF4;">${o.espera.toFixed(2)}</td>
-        <td style="padding:7px 12px;text-align:center;border-bottom:1px solid #E2EFF4;">${(o.espera / 60).toFixed(2)}</td>
-        <td style="padding:7px 12px;text-align:center;border-bottom:1px solid #E2EFF4;">${o.atencion.toFixed(2)}</td>
-        <td style="padding:7px 12px;text-align:center;border-bottom:1px solid #E2EFF4;">${(o.atencion / 60).toFixed(2)}</td>
+      <tr style="background:${i % 2 === 0 ? COLOR.soft : COLOR.surface};">
+        <td style="padding:7px 12px;text-align:center;font-weight:700;color:${COLOR.primary};border-bottom:1px solid ${COLOR.border};">${o.fila}</td>
+        <td style="padding:7px 12px;text-align:center;border-bottom:1px solid ${COLOR.border};">${o.espera.toFixed(2)}</td>
+        <td style="padding:7px 12px;text-align:center;border-bottom:1px solid ${COLOR.border};">${(o.espera / 60).toFixed(2)}</td>
+        <td style="padding:7px 12px;text-align:center;border-bottom:1px solid ${COLOR.border};">${o.atencion.toFixed(2)}</td>
+        <td style="padding:7px 12px;text-align:center;border-bottom:1px solid ${COLOR.border};">${(o.atencion / 60).toFixed(2)}</td>
       </tr>`).join('');
 
-    const muEst = (60 / datos.mediaAtencionMin).toFixed(1);
+    const statCell = (label, val, unit) => `
+      <td style="width:16%;padding:0 6px 0 0;vertical-align:top;">
+        <div style="background:${COLOR.soft};border-left:4px solid ${COLOR.primary};border-radius:10px;padding:10px 12px;text-align:center;">
+          <div style="font-size:10px;color:${COLOR.textSoft};font-weight:600;text-transform:uppercase;letter-spacing:.4px;margin-bottom:4px;">${label}</div>
+          <div style="font-size:19px;font-weight:700;color:${COLOR.navy};">${val}</div>
+          <div style="font-size:10px;color:${COLOR.textMid};margin-top:2px;">${unit}</div>
+        </div>
+      </td>`;
 
     return `<!DOCTYPE html>
 <html lang="es">
-<head>
-  <meta charset="UTF-8">
-  <style>
-    body { margin:0; padding:0; font-family: Arial, Helvetica, sans-serif; background:#F4F9FB; color:#0D1F2D; }
-    .wrap { max-width:820px; margin:0 auto; padding:32px 28px; background:#fff; }
-    .header { background:#0F2D4A; border-radius:16px; padding:28px 26px; color:#fff; margin-bottom:26px; }
-    .header h1 { margin:0 0 6px; font-size:20px; font-weight:800; }
-    .header p  { margin:0; font-size:13px; opacity:.75; }
-    .seccion { font-size:12px; font-weight:700; color:#1B7A8C; text-transform:uppercase;
-               letter-spacing:1px; border-bottom:2px solid #D6F0F5; padding-bottom:6px; margin:22px 0 14px; }
-    .context { background:#E8F6FA; border-left:4px solid #2AA8BE; border-radius:10px;
-               padding:16px 18px; font-size:13px; line-height:1.8; margin-bottom:20px; }
-    .context b { color:#0F2D4A; }
-    .stats { display:flex; flex-wrap:wrap; gap:10px; margin-bottom:22px; }
-    .stat { flex:1; min-width:140px; background:#E8F6FA; border-left:4px solid #1B7A8C;
-            border-radius:10px; padding:12px 14px; text-align:center; }
-    .stat-label { font-size:10px; color:#6B8FA3; font-weight:600; text-transform:uppercase;
-                  letter-spacing:.4px; margin-bottom:4px; }
-    .stat-val   { font-size:22px; font-weight:800; color:#0F2D4A; }
-    .stat-unit  { font-size:10px; color:#2C5F7A; margin-top:2px; }
-    table { width:100%; border-collapse:collapse; font-size:12px; }
-    thead th { background:#0F2D4A; color:#fff; padding:10px 12px; font-size:10px;
-               font-weight:700; text-transform:uppercase; letter-spacing:.5px; text-align:center; }
-    .footer { margin-top:28px; text-align:center; font-size:11px; color:#6B8FA3;
-              border-top:1px solid #E2EFF4; padding-top:14px; }
-  </style>
+<head><meta charset="UTF-8">
+<style>
+  body { margin:0; padding:0; font-family:Arial,Helvetica,sans-serif; background:${COLOR.bg}; color:${COLOR.text}; }
+  .wrap { max-width:820px; margin:0 auto; padding:32px 28px; background:${COLOR.surface}; }
+  .header { background:${COLOR.navy}; border-radius:14px; padding:26px; color:#fff; margin-bottom:26px; }
+  .header h1 { margin:0 0 6px; font-size:19px; }
+  .header p  { margin:0; font-size:12px; opacity:.7; }
+  .sec { font-size:11px; font-weight:700; color:${COLOR.primary}; text-transform:uppercase;
+         letter-spacing:1px; border-bottom:2px solid ${COLOR.accent}; padding-bottom:5px; margin:20px 0 14px; }
+  .ctx { background:${COLOR.soft}; border-left:4px solid ${COLOR.accent}; border-radius:10px;
+         padding:14px 16px; font-size:13px; line-height:1.8; margin-bottom:20px; }
+  .ctx b { color:${COLOR.navy}; }
+  table.data { width:100%; border-collapse:collapse; font-size:12px; }
+  table.data thead th { background:${COLOR.navy}; color:#fff; padding:9px 12px; font-size:10px;
+                        font-weight:700; text-transform:uppercase; letter-spacing:.4px; text-align:center; }
+  .footer { margin-top:28px; text-align:center; font-size:10px; color:${COLOR.textSoft};
+            border-top:1px solid ${COLOR.border}; padding-top:12px; }
+</style>
 </head>
 <body>
 <div class="wrap">
   <div class="header">
-    <h1>📊 Datos de Campo — Experimento de Observación Directa</h1>
-    <p>Cafetería "El Toque" · Flujo de atención en hora pico · ${fecha()}</p>
+    <h1>Datos de Campo - Experimento de obervación directa</h1>
+    <p>Cafetería El Toque - Flujo de atención en hora pico universitaria · ${fechaHoy()}</p>
   </div>
 
-  <div class="seccion">Contexto del experimento</div>
-  <div class="context">
-    <b>Sitio:</b> Cafetería universitaria "El Toque", zona de alto tráfico en hora pico (11:30 am – 1:00 pm).<br>
-    <b>Metodología:</b> Observación directa. Dos observadores registraron el tiempo de espera en fila y el tiempo de atención en caja de cada usuario.<br>
-    <b>Muestra:</b> ${datos.n} usuarios observados consecutivamente durante una sesión de hora pico.<br>
-    <b>Variables:</b> Tiempo de espera en cola (segundos) y tiempo de atención en caja (segundos).<br>
-    <b>Supuestos:</b> Llegadas Poisson, servicio exponencial, disciplina FIFO, capacidad ilimitada (M/M/1 o M/M/S).
+  <div class="sec">Contexto del experimento</div>
+  <div class="ctx">
+    <b>Sitio:</b> Cafetería universitaria El Toque, zona de alto tráfico en hora pico (11:30 am – 1:00 pm).<br>
+    <b>Metodología:</b> Observación directa. Tres observadores registraron el tiempo de espera en fila y el tiempo de atención en caja de cada usuario.<br>
+    <b>Muestra:</b> ${datos.n} usuarios observados consecutivamente. Representa una sesión típica de alta demanda.<br>
+    <b>Variables:</b> Tiempo de espera en cola (seg) y tiempo de atención en caja (seg) por individuo.<br>
   </div>
 
-  <div class="seccion">Estadísticas descriptivas</div>
-  <div class="stats">
-    <div class="stat">
-      <div class="stat-label">Observaciones (N)</div>
-      <div class="stat-val">${datos.n}</div>
-      <div class="stat-unit">usuarios</div>
-    </div>
-    <div class="stat">
-      <div class="stat-label">Espera promedio</div>
-      <div class="stat-val">${datos.mediaEsperaMin.toFixed(2)}</div>
-      <div class="stat-unit">min (Wq obs.)</div>
-    </div>
-    <div class="stat">
-      <div class="stat-label">Atención promedio</div>
-      <div class="stat-val">${datos.mediaAtencionMin.toFixed(2)}</div>
-      <div class="stat-unit">min por persona</div>
-    </div>
-    <div class="stat">
-      <div class="stat-label">μ estimada</div>
-      <div class="stat-val">${muEst}</div>
-      <div class="stat-unit">clientes/h por caja</div>
-    </div>
-    <div class="stat">
-      <div class="stat-label">Desv. Std Espera</div>
-      <div class="stat-val">${datos.stdEspera.toFixed(0)}</div>
-      <div class="stat-unit">segundos</div>
-    </div>
-    <div class="stat">
-      <div class="stat-label">Desv. Std Atención</div>
-      <div class="stat-val">${datos.stdAtencion.toFixed(0)}</div>
-      <div class="stat-unit">segundos</div>
-    </div>
-  </div>
+  <div class="sec">Estadísticas descriptivas</div>
+  <table style="width:100%;border-collapse:collapse;margin-bottom:22px;"><tr>
+    ${statCell('Observaciones (N)', datos.n, 'usuarios')}
+    ${statCell('Espera promedio', datos.mediaEsperaMin.toFixed(2), 'min (Wq obs.)')}
+    ${statCell('Atención promedio', datos.mediaAtencionMin.toFixed(2), 'min por persona')}
+    ${statCell('μ estimada', muEst, 'clientes/h·caja')}
+    ${statCell('Desv. Std espera', datos.stdEspera.toFixed(0), 'segundos')}
+    ${statCell('Desv. Std atención', datos.stdAtencion.toFixed(0), 'segundos')}
+  </tr></table>
 
-  <div class="seccion">Registro completo — N = ${datos.n} observaciones</div>
-  <table>
-    <thead>
-      <tr>
-        <th>#</th>
-        <th>Espera (seg)</th>
-        <th>Espera (min)</th>
-        <th>Atención (seg)</th>
-        <th>Atención (min)</th>
-      </tr>
-    </thead>
+  <div class="sec">Registro completo - N = ${datos.n} observaciones</div>
+  <table class="data">
+    <thead><tr>
+      <th>#</th><th>Espera (seg)</th><th>Espera (min)</th><th>Atención (seg)</th><th>Atención (min)</th>
+    </tr></thead>
     <tbody>${filas}</tbody>
   </table>
 
-  <div class="footer">
-    El Toque Simulación · Datos recolectados mediante observación directa · ${fecha()}
-  </div>
+  <div class="footer">El Toque - Datos recolectados mediante observación directa · ${fechaHoy()}</div>
 </div>
-</body>
-</html>`;
+</body></html>`;
 };
