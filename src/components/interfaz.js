@@ -4,24 +4,30 @@ import { StyleSheet, Text, View, TouchableOpacity } from 'react-native';
 
 // ─── Paleta ──────────────────────────────────────────────────────────────────
 export const C = {
-    navy:        '#a9d6e5',   // header / fondo oscuro
-    primary:     '#33658A',   // azul principal
-    accent:      '#03045e',   // azul claro de contraste
-    accentMid:   '#235468',   // azul claro medio (bordes activos, interp)
-    bg:          '#a9d6e524',   // fondo general
-    surface:     '#FFFFFF',   // tarjetas
-    surfaceSoft: '#a9d6e524',   // inputs, fondos internos
-    textDark:    '#1a1a2e',   // texto principal
-    textMid:     '#03045e',   // subtítulos / labels
-    textSoft:    '#9B9790',   // hints, fórmulas
-    border:      '#E8E5DF',   // bordes de tarjeta
-    divider:     '#F0EDE8',   // separadores internos
-    green:       '#2D7A4F',
-    greenPale:   '#E6F3EC',
-    amber:       '#C47F1A',
-    amberPale:   '#FDF3E3',
-    red:         '#A32D2D',
-    redPale:     '#FCEBEB',
+  navy:        '#2d274d',
+  primary:     '#996ce6',
+  accent:      '#A78BFA',
+  accentMid:   '#8B5CF6',
+
+  bg:          '#F8F7FC',
+  surface:     '#FFFFFF',
+  surfaceSoft: '#F1EEFB',
+
+  textDark:    '#1F1B2D',
+  textMid:     '#5B5570',
+  textSoft:    '#9B95B3',
+
+  border:      '#E8E4F3',
+  divider:     '#F0ECF8',
+
+  green:       '#15803D',
+  greenPale:   '#DCFCE7',
+
+  amber:       '#D97706',
+  amberPale:   '#FEF3C7',
+
+  red:         '#DC2626',
+  redPale:     '#FEE2E2',
 };
 
 export const SelectorModelo = ({ modelo, setModelo, alCambiar }) => (
