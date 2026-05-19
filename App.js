@@ -9,7 +9,7 @@ import * as Sharing from 'expo-sharing';
 
 import { calcularModeloMM1, calcularModeloMMS, DATOS_CAMPO } from './src/math/logicacolas';
 import { obtenerPlantillaHTML, obtenerPlantillaExperimentoHTML } from './src/reports/plantillapdf';
-import { SelectorModelo, MetricaCard, P0Card, Divisor, InfoChip, MetodRow, C } from './src/components/interfaz';
+import { SelectorModelo, MetricaCard, P0Card, Divisor, MetodRow, HallazgoCard, MetricaCampo, C } from './src/components/interfaz';
 
 const { width } = Dimensions.get('window');
 const CARD_W = (width - 52) / 2;
@@ -21,7 +21,6 @@ const estadoRho = (rhoStr) => {
     return { color: C.green, bg: C.greenPale };
 };
 
-
 const StatCard = ({ valor, label, unidad, accentColor }) => (
     <View style={[st.statCard, { borderTopColor: accentColor || C.primary }]}>
         <Text style={[st.statVal, { color: accentColor || C.navy }]}>{valor}</Text>
@@ -29,7 +28,6 @@ const StatCard = ({ valor, label, unidad, accentColor }) => (
         {unidad ? <Text style={st.statUnit}>{unidad}</Text> : null}
     </View>
 );
-
 
 const TabBar = ({ tab, setTab }) => (
     <View style={st.tabBar}>
@@ -108,7 +106,6 @@ export default function App() {
         }
     };
 
-    
     const pdfResultados = async () => {
         if (!resultado) return;
         setLoading(true);
@@ -123,7 +120,6 @@ export default function App() {
         }
     };
 
-    
     const pdfExperimento = async () => {
         setLoading(true);
         try {
@@ -137,64 +133,107 @@ export default function App() {
         }
     };
 
-    
     const pantExperimento = () => (
         <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={st.scroll}>
 
             {/* Hero */}
             <View style={st.hero}>
                 <View style={st.heroBadge}>
-                    <Text style={st.heroBadgeTxt}>Hora pico · 11:30 – 13:00</Text>
+                    <Text style={st.heroBadgeTxt}>Hora pico · 12:00 – 13:30</Text>
                 </View>
                 <Text style={st.heroTitle}>Cafetería universitaria: El Toque</Text>
                 <Text style={st.heroSub}>
-                    Flujo de atención observado directamente en campo.
+                    46 usuarios observados directamente durante 90 min de máxima congestión.
                 </Text>
             </View>
 
-            {/* Stats */}
+            {/* Stats clave */}
             <View style={st.statGrid}>
-                <StatCard valor="46"   label="Observaciones"      unidad="usuarios"      accentColor={C.primary}   />
-                <StatCard valor="2.16" label="Espera promedio"     unidad="min en fila"   accentColor={C.amber}     />
-                <StatCard valor="1.36" label="Atención promedio"   unidad="min por caja"  accentColor={C.accentMid} />
-                <StatCard valor="44.2" label="μ estimada"          unidad="clientes/h"    accentColor={C.green}     />
+                <StatCard valor="46"    label="Observaciones"    unidad="usuarios"    accentColor={C.primary}  />
+                <StatCard valor="2:10"  label="Espera promedio"  unidad="min en cola" accentColor={C.amber}    />
+                <StatCard valor="1:21"  label="Atención prom."   unidad="min por caja" accentColor={C.accentMid}/>
+                <StatCard valor="69.1%" label="Utilización (ρ)"  unidad="del servidor" accentColor={C.red}     />
             </View>
 
-            {/* Contexto */}
+            {/* Parámetros del modelo */}
             <View style={st.card}>
-                <Text style={st.cardTitle}>Contexto del estudio</Text>
-                <Text style={st.parr}>
-                    Se analizó el comportamiento de la cola durante la hora pico, periodo de máxima demanda
-                    estudiantil. La cafetería opera con <Text style={st.bold}>1 caja activa</Text> y
-                    atiende desde bebidas rápidas hasta platos del día, generando alta variabilidad en el servicio.
-                </Text>
+                <Text style={st.cardTitle}>Parámetros estimados del modelo M/M/1</Text>
+                <MetricaCampo
+                    label="Tasa de llegada (λ)"
+                    sub="46 usuarios ÷ 5400 seg de observación"
+                    valor="0.0085"
+                    unidad="usuarios/seg · ≈ 30.6/h"
+                />
+                <MetricaCampo
+                    label="Tasa de servicio (μ)"
+                    sub="1 ÷ 81.36 seg promedio de atención"
+                    valor="0.0123"
+                    unidad="usuarios/seg · ≈ 44.2/h"
+                />
+                <MetricaCampo
+                    label="Factor de utilización (ρ)"
+                    sub="λ / μ = 0.0085 / 0.0123"
+                    valor="0.691"
+                    unidad="69.1% de capacidad"
+                />
+                <MetricaCampo
+                    label="Usuarios promedio en cola (Lq)"
+                    sub="λ² / [μ(μ−λ)]"
+                    valor="1.54"
+                    unidad="personas esperando"
+                />
+                <MetricaCampo
+                    label="Tiempo promedio en cola (Wq)"
+                    sub="λ / [μ(μ−λ)] — dato observado: 129.89 seg"
+                    valor="181.17"
+                    unidad="segundos (≈ 3 min)"
+                />
             </View>
 
             {/* Metodología */}
             <View style={st.card}>
                 <Text style={st.cardTitle}>Metodología</Text>
-                <MetodRow emoji="🎯" titulo="Método" texto="Observación directa en campo. Dos observadores registraron tiempos de forma simultánea para evitar sesgos." />
-                <MetodRow emoji="👥" titulo="Muestra" texto="46 usuarios observados consecutivamente en una sesión de hora pico. Muestra representativa de la demanda real." />
-                <MetodRow emoji="⏱️" titulo="Variables" texto="Tiempo de espera en fila y tiempo de atención en caja, en segundos, por cada individuo." />
+                <MetodRow emoji="🎯" titulo="Método" texto="Observación directa ininterrumpida durante 90 minutos de hora pico. Tres observadores registraron tiempos simultáneamente para eliminar sesgos." />
+                <MetodRow emoji="👥" titulo="Muestra" texto="46 usuarios consecutivos. Cubre la totalidad de la ventana de congestión (12:00–13:30 pm), representativa de la demanda real." />
+                <MetodRow emoji="⏱️" titulo="Variables" texto="Tiempo de espera en fila y tiempo de atención en caja, medidos en segundos por individuo. El tiempo máximo de espera fue de 721.53 seg (≈12 min)." />
             </View>
 
-            {/* Valores recomendados */}
+            {/* Diagnóstico operativo */}
             <View style={st.card}>
-                <Text style={st.cardTitle}>Valores recomendados para la calculadora</Text>
-                <Text style={st.parr}>Basados en el levantamiento, estos valores replican las condiciones reales observadas:</Text>
-                <InfoChip etiqueta="λ · Tasa de llegada"            valor="50 clientes / hora" />
-                <InfoChip etiqueta="μ · Tasa de servicio por caja"  valor="60 clientes / hora" />
-                <InfoChip etiqueta="S · Servidores (para M/M/S)"    valor="2 cajas abiertas" />
-                <View style={st.notaBox}>
-                    <Text style={st.notaTxt}>
-                        Con λ=50, μ=60 y S=1 (M/M/1) el sistema queda al 83% de uso, refleja la presión real.
-                        Con S=2 (M/M/S) baja a 42%, mucho más cómodo para los estudiantes.
-                    </Text>
-                </View>
+                <Text style={st.cardTitle}>Diagnóstico operativo</Text>
+                <Text style={st.parr}>
+                    Un ρ = 69.1% implica que el servidor está ocupado el 69% del tiempo, 
+                    dejando un margen de holgura del 30.9%. Este margen indica que{' '}
+                    <Text style={st.bold}>el cuello de botella no es falta de capacidad bruta</Text>,
+                    sino ineficiencias en el punto de contacto:
+                </Text>
+                <HallazgoCard
+                    titulo="Multitarea en caja"
+                    accentColor={C.amber}
+                    texto="El cajero realizaba tareas secundarias (preparación de platos, recogida) mientras había usuarios en fila. Esto dilata el tiempo real de servicio y eleva la espera máxima observada a 721.53 seg."
+                />
+                <HallazgoCard
+                    titulo="Ritmo operativo subóptimo"
+                    accentColor={C.red}
+                    texto="Se evidenció baja agilidad en el despacho de pedidos y manejo de transacciones, lo que eleva el tiempo medio de servicio más allá de lo que justificaría la demanda real."
+                />
+                <HallazgoCard
+                    titulo="Capacidad suficiente - optimización sin costo"
+                    accentColor={C.green}
+                    texto="La cafetería opera con 4 empleados contratados. No se requieren contrataciones: redistribuir funciones para dedicación exclusiva en caja durante la hora pico reduciría Wq significativamente sin alterar la nómina."
+                />
+            </View>
+
+            {/* Propuestas de mejora */}
+            <View style={st.card}>
+                <Text style={st.cardTitle}>Propuestas de mejora (sin costo adicional)</Text>
+                <MetodRow titulo="Dedicación exclusiva en caja" texto="Durante los 90 min críticos, la persona en caja debe enfocarse únicamente en recibir pedidos y cobrar. Cero tareas de preparación o recogida mientras haya fila." />
+                <MetodRow titulo="Redistribución interna" texto="Los otros 3 empleados asumen las tareas de preparación y servicio, liberando al cajero de cualquier función secundaria. No requiere personal extra." />
+                <MetodRow titulo="Capacitación operativa" texto="Entrenamiento en destreza y velocidad para el punto de caja. Reducir μ⁻¹ (tiempo de servicio) mejora ρ directamente: bajar el promedio de 81 a 60 seg llevaría ρ al 51%." />
             </View>
 
             <Boton
-                label={loading ? '⏳  Generando PDF...' : 'Descargar análisis de datos (PDF)'}
+                label={loading ? 'Generando PDF...' : 'Descargar análisis de datos (PDF)'}
                 bgColor={C.primary}
                 onPress={pdfExperimento}
                 disabled={loading}
@@ -253,7 +292,7 @@ export default function App() {
             </View>
 
             {resultado && (() => {
-                const { color: rhoColor, bg: rhoBg } = estadoRho(resultado.rho);
+                const { color: rhoColor } = estadoRho(resultado.rho);
                 return (
                     <>
                         <Divisor label={`Resultados · ${resultado.tipo}`} />
@@ -353,24 +392,24 @@ const st = StyleSheet.create({
                  alignItems: 'center', justifyContent: 'center' },
     logoEmoji: { fontSize: 20 },
     logoTitle: { fontSize: 18, fontWeight: '700', color: '#fff', letterSpacing: -0.2 },
-    logoSub:   { fontSize: 11, color: C.accent, marginTop: 1 },
+    logoSub:   { fontSize: 11, color: '#fff', marginTop: 1 },   // verde claro — más legible que lavanda sobre navy verde
 
     // Tabs
     tabBar:       { flexDirection: 'row', backgroundColor: C.navy, paddingHorizontal: 16 },
     tabBtn:       { flex: 1, paddingVertical: 11, alignItems: 'center',
                     borderBottomWidth: 2.5, borderBottomColor: 'transparent' },
     tabBtnActivo: { borderBottomColor: C.accent },
-    tabTxt:       { fontSize: 13, fontWeight: '500', color: '#7BAFC8' },
+    tabTxt:       { fontSize: 13, fontWeight: '500', color: C.primary },   // verde medio — mejor contraste que #7BAFC8
     tabTxtActivo: { color: '#fff', fontWeight: '700' },
 
     // Hero
     hero:         { backgroundColor: C.navy, borderRadius: 16, padding: 22, marginBottom: 14 },
-    heroBadge:    { backgroundColor: 'rgba(168,212,230,0.18)', borderWidth: 1,
-                    borderColor: 'rgba(168,212,230,0.3)', borderRadius: 20,
+    heroBadge:    { backgroundColor: 'rgba(196,214,185,0.18)', borderWidth: 1,
+                    borderColor: 'rgba(196,214,185,0.3)', borderRadius: 20,
                     alignSelf: 'flex-start', paddingHorizontal: 12, paddingVertical: 4, marginBottom: 10 },
     heroBadgeTxt: { fontSize: 10, color: C.accent, fontWeight: '600' },
     heroTitle:    { fontSize: 18, fontWeight: '700', color: '#fff', marginBottom: 6 },
-    heroSub:      { fontSize: 12, color: '#7BAFC8', lineHeight: 18 },
+    heroSub:      { fontSize: 12, color: C.primary, lineHeight: 18 },
 
     // Stat grid
     statGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 10, marginBottom: 14 },
@@ -390,10 +429,6 @@ const st = StyleSheet.create({
     // Texto
     parr: { fontSize: 13, color: C.textMid, lineHeight: 20, marginBottom: 10 },
     bold: { fontWeight: '700', color: C.textDark },
-
-    // Nota
-    notaBox: { backgroundColor: '#EAF2F8', borderRadius: 10, padding: 12, marginTop: 4 },
-    notaTxt: { fontSize: 11, color: C.primary, lineHeight: 17 },
 
     // Inputs
     inputLabel: { fontSize: 10, fontWeight: '700', color: C.textSoft, marginBottom: 6,
